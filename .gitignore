@@ -16,3 +16,12 @@ node_modules/
 
 # Logs
 *.log
+# Temporary images
+backend/temp/
+
+# Zip files
+*.zip
+
+# macOS metadata
+__MACOSX/
+.DS_Store

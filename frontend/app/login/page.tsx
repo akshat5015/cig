@@ -4,11 +4,11 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import GlassCard from "@/components/GlassCard";
-import { authApi } from "@/services/api";
+import { useAuth } from "@/context/AuthContext";
 
-export default function SignupPage() {
+export default function LoginPage() {
   const router = useRouter();
-  const [username, setUsername] = useState("");
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -19,10 +19,14 @@ export default function SignupPage() {
     setError("");
     setLoading(true);
     try {
-      await authApi.signup({ username, email, password });
-      router.push("/login");
+      const err = await login(email, password);
+      if (err) {
+        setError(err);
+      } else {
+        router.push("/events");
+      }
     } catch {
-      setError("Signup failed. Email may already exist.");
+      setError("Could not connect to server. Is the backend running?");
     } finally {
       setLoading(false);
     }
@@ -31,18 +35,10 @@ export default function SignupPage() {
   return (
     <div className="flex min-h-screen items-center justify-center px-4 py-16">
       <GlassCard strong className="w-full max-w-md">
-        <h1 className="mb-2 text-2xl font-bold">Create account</h1>
-        <p className="mb-6 text-sm text-white/50">Join EventSphere</p>
+        <h1 className="mb-2 text-2xl font-bold">Welcome back</h1>
+        <p className="mb-6 text-sm text-white/50">Sign in to EventSphere</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            placeholder="Username"
-            required
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="input-glass w-full rounded-xl px-4 py-3"
-          />
           <input
             type="email"
             placeholder="Email"
@@ -55,7 +51,6 @@ export default function SignupPage() {
             type="password"
             placeholder="Password"
             required
-            minLength={6}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="input-glass w-full rounded-xl px-4 py-3"
@@ -66,14 +61,14 @@ export default function SignupPage() {
             disabled={loading}
             className="btn-primary w-full rounded-xl py-3"
           >
-            {loading ? "Creating..." : "Sign up"}
+            {loading ? "Signing in..." : "Sign in"}
           </button>
         </form>
 
         <p className="mt-6 text-center text-sm text-white/50">
-          Already have an account?{" "}
-          <Link href="/login" className="text-[#7c9cff] hover:underline">
-            Sign in
+          No account?{" "}
+          <Link href="/signup" className="text-[#7c9cff] hover:underline">
+            Sign up
           </Link>
         </p>
       </GlassCard>
